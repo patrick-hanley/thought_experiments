@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Helping VCs target the next acquisition with better than 90% confidence | fastpages</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="Helping VCs target the next acquisition with better than 90% confidence" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="After analyzing start-up funding data from over 49,000 startups, I can predict which companies are going to be aquired and which are going to be defunct." />
+<meta property="og:description" content="After analyzing start-up funding data from over 49,000 startups, I can predict which companies are going to be aquired and which are going to be defunct." />
+<link rel="canonical" href="https://patrick-hanley.github.io/thought_experiments/embeddings/venture%20capital/shallow%20neural%20nets/2021/02/13/_02_13_neural_nets_crunchbase.html" />
+<meta property="og:url" content="https://patrick-hanley.github.io/thought_experiments/embeddings/venture%20capital/shallow%20neural%20nets/2021/02/13/_02_13_neural_nets_crunchbase.html" />
+<meta property="og:site_name" content="fastpages" />
+<meta property="og:image" content="https://patrick-hanley.github.io/thought_experiments/images/image.png" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-02-13T00:00:00-06:00" />
+<script type="application/ld+json">
+{"url":"https://patrick-hanley.github.io/thought_experiments/embeddings/venture%20capital/shallow%20neural%20nets/2021/02/13/_02_13_neural_nets_crunchbase.html","@type":"BlogPosting","headline":"Helping VCs target the next acquisition with better than 90% confidence","dateModified":"2021-02-13T00:00:00-06:00","datePublished":"2021-02-13T00:00:00-06:00","image":"https://patrick-hanley.github.io/thought_experiments/images/image.png","mainEntityOfPage":{"@type":"WebPage","@id":"https://patrick-hanley.github.io/thought_experiments/embeddings/venture%20capital/shallow%20neural%20nets/2021/02/13/_02_13_neural_nets_crunchbase.html"},"description":"After analyzing start-up funding data from over 49,000 startups, I can predict which companies are going to be aquired and which are going to be defunct.","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/thought_experiments/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://patrick-hanley.github.io/thought_experiments/feed.xml" title="fastpages" /><link rel="shortcut icon" type="image/x-icon" href="/thought_experiments/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/thought_experiments/">fastpages</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/thought_experiments/about/">About Me</a><a class="page-link" href="/thought_experiments/search/">Search</a><a class="page-link" href="/thought_experiments/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Helping VCs target the next acquisition with better than 90% confidence</h1><p class="page-description">After analyzing start-up funding data from over 49,000 startups, I can predict which companies are going to be aquired and which are going to be defunct.</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2021-02-13T00:00:00-06:00" itemprop="datePublished">
+        Feb 13, 2021
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      6 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/thought_experiments/categories/#embeddings">embeddings</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/thought_experiments/categories/#venture capital">venture capital</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/thought_experiments/categories/#shallow neural nets">shallow neural nets</a>
+        
+      
+      </p>
+    
+
+    
+      
+        <div class="pb-5 d-flex flex-wrap flex-justify-end">
+          <div class="px-2">
+
+    <a href="https://github.com/patrick-hanley/thought_experiments/tree/master/_notebooks/2021_02_13_neural_nets_crunchbase.ipynb" role="button" target="_blank">
+<img class="notebook-badge-image" src="/thought_experiments/assets/badges/github.svg" alt="View On GitHub">
+    </a>
+</div>
+
+          <div class="px-2">
+    <a href="https://mybinder.org/v2/gh/patrick-hanley/thought_experiments/master?filepath=_notebooks%2F2021_02_13_neural_nets_crunchbase.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/thought_experiments/assets/badges/binder.svg" alt="Open In Binder"/>
+    </a>
+</div>
+
+          <div class="px-2">
+    <a href="https://colab.research.google.com/github/patrick-hanley/thought_experiments/blob/master/_notebooks/2021_02_13_neural_nets_crunchbase.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/thought_experiments/assets/badges/colab.svg" alt="Open In Colab"/>
+    </a>
+</div>
+        </div>
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul class="section-nav">
+<li class="toc-entry toc-h1"><a href="#Overall-Strategy">Overall Strategy </a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#Using-the-Fast.AI-library,-I-used-shallow-neural-networks-to-encode-all-the-categorical-features-of-the-funding-data-(company-market-space,-city,-region,-amount-per-round)-and-then-extracted-the-embedding-layers-for-further-analysis-with-Machine-Learning-models.">Using the Fast.AI library, I used shallow neural networks to encode all the categorical features of the funding data (company market space, city, region, amount per round) and then extracted the embedding layers for further analysis with Machine Learning models. </a></li>
+<li class="toc-entry toc-h2"><a href="#Instead-of-a-simple-label-encoding-of-each-feature,-I-created-different-vector-representations-of-multiple-lengths-for-each-network.">Instead of a simple label encoding of each feature, I created different vector representations of multiple lengths for each network. </a></li>
+<li class="toc-entry toc-h2"><a href="#---">&gt; &gt; ### </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#"></a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#Ensembling-the-embeddings">Ensembling the embeddings </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#Steps-taken-to-predict-the-acquisition-of-the-startup-was-the-following:">Steps taken to predict the acquisition of the startup was the following: </a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#Import-the-data,-split-into-Training-and-Test,-Split-into-continous-and-categorical-data">Import the data, split into Training and Test, Split into continous and categorical data </a></li>
+<li class="toc-entry toc-h2"><a href="#List-of-Categorical-features-I-will-encode">List of Categorical features I will encode </a></li>
+<li class="toc-entry toc-h2"><a href="#Run-data-through-multiple-shallow-neural-networks-to-convert-categorical-to-continous-data">Run data through multiple shallow neural networks to convert categorical to continous data </a></li>
+<li class="toc-entry toc-h2"><a href="#Train-ML-models-on-the-latent-space-of-the-neural-nets">Train ML models on the latent space of the neural nets </a></li>
+<li class="toc-entry toc-h2"><a href="#Ensemble-the-predictions-from-each-model">Ensemble the predictions from each model </a></li>
+<li class="toc-entry toc-h2"><a href="#Train-ML-model-on-the-Ensemble">Train ML model on the Ensemble </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#The-ensemble-of-the-latent-layers-improves-the-model-by->-6%.--To-reach-95%-accuracy,-I-focus-on-the-top-20%-of-the-companies-based-on-the-confidence-of-the-model.">The ensemble of the latent layers improves the model by &gt; 6%.  To reach 95% accuracy, I focus on the top 20% of the companies based on the confidence of the model. </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#Select-the-most-confident-prediction">Select the most confident prediction </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#Interesting-high-confidence-predictions">Interesting high confidence predictions </a></li>
+</ul><!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2021_02_13_neural_nets_crunchbase.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><a href="https://colab.research.google.com/github/patrick-hanley/thought_experiments/blob/master/_notebooks/2021_02_13_neural_nets_crunchbase.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<!-- # Helping VCs target the next acquisition with better than 90% confidence
+
+#    After analyzing start-up funding data from over 49,000 startups, I can predict which companies are going to be aquired and which are going to be defunct.
+
+
+This [dataset](https://www.kaggle.com/arindam235/startup-investments-crunchbase) originated from Crunchbase and was downloaded from kaggle. -->
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Overall-Strategy">
+<a class="anchor" href="#Overall-Strategy" aria-hidden="true"><span class="octicon octicon-link"></span></a><strong>Overall Strategy</strong><a class="anchor-link" href="#Overall-Strategy"> </a>
+</h1>
+<h2 id="Using-the-Fast.AI-library,-I-used-shallow-neural-networks-to-encode-all-the-categorical-features-of-the-funding-data-(company-market-space,-city,-region,-amount-per-round)-and-then-extracted-the-embedding-layers-for-further-analysis-with-Machine-Learning-models.">
+<a class="anchor" href="#Using-the-Fast.AI-library,-I-used-shallow-neural-networks-to-encode-all-the-categorical-features-of-the-funding-data-(company-market-space,-city,-region,-amount-per-round)-and-then-extracted-the-embedding-layers-for-further-analysis-with-Machine-Learning-models." aria-hidden="true"><span class="octicon octicon-link"></span></a>Using the Fast.AI library, I used shallow neural networks to encode all the categorical features of the funding data (company market space, city, region, amount per round) and then extracted the embedding layers for further analysis with Machine Learning models.<a class="anchor-link" href="#Using-the-Fast.AI-library,-I-used-shallow-neural-networks-to-encode-all-the-categorical-features-of-the-funding-data-(company-market-space,-city,-region,-amount-per-round)-and-then-extracted-the-embedding-layers-for-further-analysis-with-Machine-Learning-models."> </a>
+</h2>
+<h2 id="Instead-of-a-simple-label-encoding-of-each-feature,-I-created-different-vector-representations-of-multiple-lengths-for-each-network.">
+<a class="anchor" href="#Instead-of-a-simple-label-encoding-of-each-feature,-I-created-different-vector-representations-of-multiple-lengths-for-each-network." aria-hidden="true"><span class="octicon octicon-link"></span></a>Instead of a simple label encoding of each feature, I created different vector representations of multiple lengths for each network.<a class="anchor-link" href="#Instead-of-a-simple-label-encoding-of-each-feature,-I-created-different-vector-representations-of-multiple-lengths-for-each-network."> </a>
+</h2>
+<p>The sample below shows a vector of length 3.<br>
+The advantage is that we are able to transform discreet variables into vectors that are continous and meaningful.</p>
+<h2>
+<a class="anchor" href="#---" aria-hidden="true"><span class="octicon octicon-link"></span></a>&gt; &gt; ### <img alt="Label Embeddings vs Vector Embedding" width="800" caption="Label Embeddings vs Vector Embedding (derived from latent space of neural network)" id="city_emb" src="https://drive.google.com/uc?id=1zszZ7eTR0Fe0QVhDto_YTrPop_XoyvDB">
+</h2>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In the Fast.AI book, <a href="https://www.amazon.com/Deep-Learning-Coders-fastai-PyTorch/dp/1492045527">Deep Learning for Coders</a>, an excellent example of the benefits of categorical embedding is provided.</p>
+<blockquote>
+<p>On the left is a plot of the embedding matrix for the possible values of the State category. For a categorical variable we call the possible values of the variable its "levels" (or "categories" or "classes"), so here one level is "Berlin," another is "Hamburg," etc. On the right is a map of Germany. The actual physical locations of the German states were not part of the provided data, yet the model itself learned where they must be, based only on the behavior of store sales!</p>
+</blockquote>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3>
+<a class="anchor" href="#" aria-hidden="true"><span class="octicon octicon-link"></span></a><img alt="State embeddings and map" width="800" caption="State embeddings and map (courtesy of Cheng Guo and Felix Berkhahn)" id="state_emb" src="https://drive.google.com/uc?id=1Vzc203MEmeGa3X3m7MM199xRSMpfbXyV">
+</h3>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Ensembling-the-embeddings">
+<a class="anchor" href="#Ensembling-the-embeddings" aria-hidden="true"><span class="octicon octicon-link"></span></a>Ensembling the embeddings<a class="anchor-link" href="#Ensembling-the-embeddings"> </a>
+</h2>
+<p>What makes this code unique is the fact that I took the same data and ran it through 4 different shallow neural networks with a unique embedding size.</p>
+<p>For each neural net, I extracted the latent layers and trained a Random Forest model on each embedding space and then ensembled the predictions and probabilites. The end result was an improvement of &gt; 6%.</p>
+<p>The predictions improve because each model puts an emphasis on different features of the input data.</p>
+<p>The two charts shown below show the top 10 features based on the importance to the model.  Each model analyzes the data differently based on the relative importance of the features.  Remember, the underlying data is identical, but I'm analyzing the latent space with different embedding sizes.</p>
+<p>For example, the Random Forest model training on a fixed embedding size of 2, ranks a member of the 'City' vector(City_0) as the most important feature.  Where as the Random Forest using the default embeddings, ranks City_0 8th from the top.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<!-- ### <img alt="State embeddings and map" width="1200" caption="feature importance of different embedding sizes" id="fi_emb" src="https://drive.google.com/uc?id=1bf2h4DOXLvLChoPCcPSFDh8M87a7nyDF"> -->
+
+<p float="left">
+  <img src="https://drive.google.com/uc?id=1-Amuz7zrJL-yO9t7Ip8Tamt8URG5Sntu">
+  <img src="https://drive.google.com/uc?id=1-hUkVHPhoX-jWVLwhffIR2cYhB22cvms"> 
+</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Steps-taken-to-predict-the-acquisition-of-the-startup-was-the-following:">
+<a class="anchor" href="#Steps-taken-to-predict-the-acquisition-of-the-startup-was-the-following:" aria-hidden="true"><span class="octicon octicon-link"></span></a>Steps taken to predict the acquisition of the startup was the following:<a class="anchor-link" href="#Steps-taken-to-predict-the-acquisition-of-the-startup-was-the-following:"> </a>
+</h1>
+<ol>
+<li>Import and clean the data</li>
+<li>Create additional features</li>
+<li>Run data through multiple shallow neural networks to convert categorical data to continous</li>
+<li>Train ML models on the latent space of the neural nets</li>
+<li>Ensemble the predictions from each model</li>
+<li>Train ML model on the Ensemble</li>
+<li>Select the most confident prediction</li>
+</ol>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Import-the-data,-split-into-Training-and-Test,-Split-into-continous-and-categorical-data">
+<a class="anchor" href="#Import-the-data,-split-into-Training-and-Test,-Split-into-continous-and-categorical-data" aria-hidden="true"><span class="octicon octicon-link"></span></a>Import the data, split into Training and Test, Split into continous and categorical data<a class="anchor-link" href="#Import-the-data,-split-into-Training-and-Test,-Split-into-continous-and-categorical-data"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="List-of-Categorical-features-I-will-encode">
+<a class="anchor" href="#List-of-Categorical-features-I-will-encode" aria-hidden="true"><span class="octicon octicon-link"></span></a>List of Categorical features I will encode<a class="anchor-link" href="#List-of-Categorical-features-I-will-encode"> </a>
+</h2>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">cat_nn</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>['market',
+ 'country_code',
+ 'state_code',
+ 'region',
+ 'city',
+ 'founded_month',
+ 'founded_quarter']</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Run-data-through-multiple-shallow-neural-networks-to-convert-categorical-to-continous-data">
+<a class="anchor" href="#Run-data-through-multiple-shallow-neural-networks-to-convert-categorical-to-continous-data" aria-hidden="true"><span class="octicon octicon-link"></span></a>Run data through multiple shallow neural networks to convert categorical to continous data<a class="anchor-link" href="#Run-data-through-multiple-shallow-neural-networks-to-convert-categorical-to-continous-data"> </a>
+</h2>
+<h2 id="Train-ML-models-on-the-latent-space-of-the-neural-nets">
+<a class="anchor" href="#Train-ML-models-on-the-latent-space-of-the-neural-nets" aria-hidden="true"><span class="octicon octicon-link"></span></a>Train ML models on the latent space of the neural nets<a class="anchor-link" href="#Train-ML-models-on-the-latent-space-of-the-neural-nets"> </a>
+</h2>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># prepare data for neural net</span>
+<span class="n">procs_nn</span> <span class="o">=</span> <span class="p">[</span><span class="n">Categorify</span><span class="p">,</span> <span class="n">FillMissing</span><span class="p">,</span> <span class="n">Normalize</span><span class="p">]</span>
+<span class="n">to_nn</span> <span class="o">=</span> <span class="n">TabularPandas</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">procs_nn</span><span class="p">,</span> <span class="n">cat_nn</span><span class="p">,</span> <span class="n">cont_nn</span><span class="p">,</span>
+                      <span class="n">splits</span><span class="o">=</span><span class="n">splits</span><span class="p">,</span> <span class="n">y_names</span><span class="o">=</span><span class="n">dep_var</span><span class="p">)</span>
+<span class="n">dls</span> <span class="o">=</span> <span class="n">to_nn</span><span class="o">.</span><span class="n">dataloaders</span><span class="p">(</span><span class="mi">512</span><span class="p">)</span>
+
+<span class="c1"># override default embeddings</span>
+
+<span class="c1"># ebedding set to 1</span>
+<span class="n">emb_szs</span><span class="o">=</span><span class="p">{</span><span class="s1">'city'</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="s1">'market'</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s1">'region'</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s1">'founded_month'</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> 
+         <span class="s1">'founded_quarter'</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s1">'state_code'</span><span class="p">:</span><span class="mi">1</span><span class="p">}</span>
+<span class="n">_</span><span class="p">,</span> <span class="n">embeded_xs_1</span><span class="p">,</span> <span class="n">xs_valid_1</span> <span class="o">=</span> <span class="n">nn_embeddings</span><span class="p">(</span><span class="n">emb_szs</span><span class="p">)</span>
+<span class="n">embed_1_df</span> <span class="o">=</span> <span class="n">run_exps</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="n">embeded_xs_1</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">xs_valid_1</span><span class="p">,</span> <span class="n">y_test</span><span class="p">,</span>
+                      <span class="s1">'embed_1'</span><span class="p">,)</span>
+
+<span class="c1"># ebedding set to 2</span>
+<span class="n">emb_szs</span><span class="o">=</span><span class="p">{</span><span class="s1">'city'</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="s1">'market'</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="s1">'region'</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="s1">'founded_month'</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> 
+         <span class="s1">'founded_quarter'</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="s1">'state_code'</span><span class="p">:</span><span class="mi">2</span><span class="p">}</span>
+<span class="n">_</span><span class="p">,</span> <span class="n">embeded_xs_2</span><span class="p">,</span> <span class="n">xs_valid_2</span> <span class="o">=</span> <span class="n">nn_embeddings</span><span class="p">(</span><span class="n">emb_szs</span><span class="p">)</span>
+<span class="n">embed_2_df</span> <span class="o">=</span> <span class="n">run_exps</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="n">embeded_xs_2</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">xs_valid_2</span><span class="p">,</span> <span class="n">y_test</span><span class="p">,</span>
+                      <span class="s1">'embed_2'</span><span class="p">)</span>
+
+<span class="c1"># ebedding set to 3</span>
+<span class="n">emb_szs</span><span class="o">=</span><span class="p">{</span><span class="s1">'city'</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="s1">'market'</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span><span class="s1">'region'</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span><span class="s1">'founded_month'</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span> 
+         <span class="s1">'founded_quarter'</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span><span class="s1">'state_code'</span><span class="p">:</span><span class="mi">3</span><span class="p">}</span>
+<span class="n">_</span><span class="p">,</span> <span class="n">embeded_xs_3</span><span class="p">,</span> <span class="n">xs_valid_3</span> <span class="o">=</span> <span class="n">nn_embeddings</span><span class="p">(</span><span class="n">emb_szs</span><span class="p">)</span>
+<span class="n">embed_3_df</span> <span class="o">=</span> <span class="n">run_exps</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="n">embeded_xs_3</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">xs_valid_3</span><span class="p">,</span> <span class="n">y_test</span><span class="p">,</span>
+                      <span class="s1">'embed_3'</span><span class="p">)</span>
+
+<span class="c1"># default embedding based on cardinality of data</span>
+<span class="n">_</span><span class="p">,</span> <span class="n">embeded_xs_default</span><span class="p">,</span> <span class="n">xs_valid_default</span> <span class="o">=</span> <span class="n">nn_embeddings</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+<span class="n">embed_default_df</span> <span class="o">=</span> <span class="n">run_exps</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="n">embeded_xs_default</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span>
+                            <span class="n">xs_valid_default</span><span class="p">,</span> <span class="n">y_test</span><span class="p">,</span> <span class="s1">'default_embedding'</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea ">
+
+</div>
+
+</div>
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea ">
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: left;">
+      <th>epoch</th>
+      <th>train_loss</th>
+      <th>valid_loss</th>
+      <th>accuracy</th>
+      <th>time</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>0.694994</td>
+      <td>0.672121</td>
+      <td>0.609195</td>
+      <td>00:00</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>0.654680</td>
+      <td>0.631926</td>
+      <td>0.662356</td>
+      <td>00:00</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>0.626597</td>
+      <td>0.625184</td>
+      <td>0.649425</td>
+      <td>00:00</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+</div>
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>No improvement since epoch 0: early stopping
+('RandomForest', 'embed_1')
+              precision    recall  f1-score   support
+
+      closed       0.68      0.59      0.63       308
+     aquired       0.71      0.78      0.74       388
+
+    accuracy                           0.70       696
+   macro avg       0.69      0.69      0.69       696
+weighted avg       0.70      0.70      0.69       696
+
+
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea ">
+
+</div>
+
+</div>
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea ">
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: left;">
+      <th>epoch</th>
+      <th>train_loss</th>
+      <th>valid_loss</th>
+      <th>accuracy</th>
+      <th>time</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>0.706061</td>
+      <td>0.667101</td>
+      <td>0.626437</td>
+      <td>00:00</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>0.657779</td>
+      <td>0.642171</td>
+      <td>0.658046</td>
+      <td>00:00</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>0.614657</td>
+      <td>0.628641</td>
+      <td>0.662356</td>
+      <td>00:00</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+</div>
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>No improvement since epoch 0: early stopping
+('RandomForest', 'embed_2')
+              precision    recall  f1-score   support
+
+      closed       0.67      0.61      0.64       308
+     aquired       0.71      0.77      0.74       388
+
+    accuracy                           0.70       696
+   macro avg       0.69      0.69      0.69       696
+weighted avg       0.69      0.70      0.69       696
+
+
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea ">
+
+</div>
+
+</div>
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea ">
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: left;">
+      <th>epoch</th>
+      <th>train_loss</th>
+      <th>valid_loss</th>
+      <th>accuracy</th>
+      <th>time</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>0.668027</td>
+      <td>0.659178</td>
+      <td>0.632184</td>
+      <td>00:00</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>0.639549</td>
+      <td>0.630850</td>
+      <td>0.650862</td>
+      <td>00:00</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>0.611540</td>
+      <td>0.637273</td>
+      <td>0.629310</td>
+      <td>00:00</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+</div>
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>No improvement since epoch 0: early stopping
+('RandomForest', 'embed_3')
+              precision    recall  f1-score   support
+
+      closed       0.69      0.59      0.64       308
+     aquired       0.71      0.79      0.75       388
+
+    accuracy                           0.70       696
+   macro avg       0.70      0.69      0.69       696
+weighted avg       0.70      0.70      0.70       696
+
+
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea ">
+
+</div>
+
+</div>
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea ">
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: left;">
+      <th>epoch</th>
+      <th>train_loss</th>
+      <th>valid_loss</th>
+      <th>accuracy</th>
+      <th>time</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>0.671802</td>
+      <td>0.684049</td>
+      <td>0.603448</td>
+      <td>00:00</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>0.620218</td>
+      <td>0.657425</td>
+      <td>0.642241</td>
+      <td>00:00</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>0.567912</td>
+      <td>0.636839</td>
+      <td>0.653736</td>
+      <td>00:00</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+</div>
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>No improvement since epoch 0: early stopping
+('RandomForest', 'default_embedding')
+              precision    recall  f1-score   support
+
+      closed       0.67      0.59      0.63       308
+     aquired       0.70      0.77      0.73       388
+
+    accuracy                           0.69       696
+   macro avg       0.69      0.68      0.68       696
+weighted avg       0.69      0.69      0.69       696
+
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Ensemble-the-predictions-from-each-model">
+<a class="anchor" href="#Ensemble-the-predictions-from-each-model" aria-hidden="true"><span class="octicon octicon-link"></span></a>Ensemble the predictions from each model<a class="anchor-link" href="#Ensemble-the-predictions-from-each-model"> </a>
+</h2>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">del</span> <span class="n">combined_predictions</span>
+<span class="c1"># combine all predictions into single dataframe and train with RF</span>
+<span class="n">combined_predictions</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">embed_1_df</span><span class="p">,</span> <span class="n">embed_2_df</span><span class="p">,</span> <span class="n">embed_3_df</span><span class="p">,</span> <span class="n">embed_default_df</span> <span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">combined_predictions</span> <span class="o">=</span> <span class="n">combined_predictions</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span><span class="o">.</span><span class="n">T</span>
+
+<span class="n">combined_predictions</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s1">'company_index'</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s1">'ignore'</span><span class="p">)</span>
+<span class="n">combined_predictions</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s1">'combined_confidence'</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s1">'ignore'</span><span class="p">)</span>
+
+<span class="c1"># now need to split combined_predictions into train and valid sets</span>
+<span class="n">X_train_combined</span><span class="p">,</span> <span class="n">X_test_combined</span><span class="p">,</span> <span class="n">y_train_combined</span><span class="p">,</span> <span class="n">y_test_combined</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">combined_predictions</span><span class="p">,</span> <span class="n">y_test</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="n">test_size</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Train-ML-model-on-the-Ensemble">
+<a class="anchor" href="#Train-ML-model-on-the-Ensemble" aria-hidden="true"><span class="octicon octicon-link"></span></a>Train ML model on the Ensemble<a class="anchor-link" href="#Train-ML-model-on-the-Ensemble"> </a>
+</h2>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">clf</span> <span class="o">=</span> <span class="n">RandomForestClassifier</span><span class="p">(</span><span class="n">max_depth</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">oob_score</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_samples_split</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+<span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train_combined</span><span class="p">,</span> <span class="n">y_train_combined</span><span class="p">)</span>
+<span class="nb">print</span> <span class="p">(</span><span class="n">clf</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test_combined</span><span class="p">,</span> <span class="n">y_test_combined</span><span class="p">))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>0.75
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="The-ensemble-of-the-latent-layers-improves-the-model-by-&gt;-6%.--To-reach-95%-accuracy,-I-focus-on-the-top-20%-of-the-companies-based-on-the-confidence-of-the-model.">
+<a class="anchor" href="#The-ensemble-of-the-latent-layers-improves-the-model-by-&gt;-6%.--To-reach-95%-accuracy,-I-focus-on-the-top-20%-of-the-companies-based-on-the-confidence-of-the-model." aria-hidden="true"><span class="octicon octicon-link"></span></a>The ensemble of the latent layers improves the model by &gt; 6%.  To reach 95% accuracy, I focus on the top 20% of the companies based on the confidence of the model.<a class="anchor-link" href="#The-ensemble-of-the-latent-layers-improves-the-model-by-&gt;-6%.--To-reach-95%-accuracy,-I-focus-on-the-top-20%-of-the-companies-based-on-the-confidence-of-the-model."> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Select-the-most-confident-prediction">
+<a class="anchor" href="#Select-the-most-confident-prediction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Select the most confident prediction<a class="anchor-link" href="#Select-the-most-confident-prediction"> </a>
+</h2>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">predicted_val</span><span class="o">=</span><span class="n">clf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X_test_combined</span><span class="p">)</span>
+<span class="n">predicted</span><span class="o">=</span><span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test_combined</span><span class="p">)</span>
+
+<span class="n">pred_df</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">predicted_val</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">'z'</span><span class="p">,</span><span class="s1">'o'</span><span class="p">])</span>
+<span class="c1">#pred_df['names']=(X_test_combined.company_index.values)</span>
+
+<span class="n">pred_df</span><span class="p">[</span><span class="s1">'target'</span><span class="p">]</span><span class="o">=</span><span class="n">y_test_combined</span><span class="o">.</span><span class="n">values</span>
+<span class="n">pred_df</span><span class="p">[</span><span class="s1">'names'</span><span class="p">]</span><span class="o">=</span><span class="n">y_test_combined</span><span class="o">.</span><span class="n">index</span>
+<span class="n">pred_df</span><span class="p">[</span><span class="s1">'predict_acquisition'</span><span class="p">]</span><span class="o">=</span><span class="n">predicted</span>
+
+
+<span class="n">pred_df</span><span class="p">[</span><span class="s1">'diff'</span><span class="p">]</span> <span class="o">=</span> <span class="n">pred_df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s1">'o'</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="s1">'z'</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">confident_pred_df</span><span class="o">=</span><span class="n">pred_df</span><span class="p">[(</span><span class="n">pred_df</span><span class="p">[</span><span class="s1">'diff'</span><span class="p">]</span><span class="o">&gt;.</span><span class="mi">71</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">pred_df</span><span class="p">[</span><span class="s1">'diff'</span><span class="p">]</span><span class="o">&lt;-.</span><span class="mi">65</span><span class="p">)]</span>
+
+<span class="n">confident_pred_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">'names'</span><span class="p">,</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">final_acquisition_predictions</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">company_names</span><span class="p">,</span> <span class="n">confident_pred_df</span><span class="p">,</span>
+                                         <span class="n">how</span> <span class="o">=</span> <span class="s1">'right'</span><span class="p">,</span><span class="n">left_index</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                                         <span class="n">right_index</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+
+<span class="n">final_acquisition_predictions</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s1">'o'</span><span class="p">,</span><span class="s1">'z'</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> 
+                                  <span class="p">)</span>
+
+<span class="n">final_acquisition_predictions</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">'idx_name'</span>
+<span class="n">final_acquisition_predictions</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s1">'diff'</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>target</th>
+      <th>predict_acquisition</th>
+      <th>diff</th>
+    </tr>
+    <tr>
+      <th>idx_name</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1936</th>
+      <td>MyDatingTree</td>
+      <td>False</td>
+      <td>False</td>
+      <td>-0.858406</td>
+    </tr>
+    <tr>
+      <th>3427</th>
+      <td>Your Survival</td>
+      <td>False</td>
+      <td>False</td>
+      <td>-0.855665</td>
+    </tr>
+    <tr>
+      <th>1514</th>
+      <td>JumpTheClub</td>
+      <td>False</td>
+      <td>False</td>
+      <td>-0.855045</td>
+    </tr>
+    <tr>
+      <th>2887</th>
+      <td>Steelhead Composites</td>
+      <td>False</td>
+      <td>False</td>
+      <td>-0.843806</td>
+    </tr>
+    <tr>
+      <th>1228</th>
+      <td>Ground Zero Group Corporation</td>
+      <td>False</td>
+      <td>False</td>
+      <td>-0.839395</td>
+    </tr>
+    <tr>
+      <th>3359</th>
+      <td>WHObyYOU</td>
+      <td>False</td>
+      <td>False</td>
+      <td>-0.828085</td>
+    </tr>
+    <tr>
+      <th>1851</th>
+      <td>MobAppCreator</td>
+      <td>False</td>
+      <td>False</td>
+      <td>-0.808270</td>
+    </tr>
+    <tr>
+      <th>1151</th>
+      <td>Gifts that Give</td>
+      <td>False</td>
+      <td>False</td>
+      <td>-0.784105</td>
+    </tr>
+    <tr>
+      <th>2374</th>
+      <td>Puentes Company</td>
+      <td>False</td>
+      <td>False</td>
+      <td>-0.783356</td>
+    </tr>
+    <tr>
+      <th>847</th>
+      <td>Dormzy</td>
+      <td>False</td>
+      <td>False</td>
+      <td>-0.731046</td>
+    </tr>
+    <tr>
+      <th>3278</th>
+      <td>VirtualQube</td>
+      <td>False</td>
+      <td>False</td>
+      <td>-0.727056</td>
+    </tr>
+    <tr>
+      <th>2760</th>
+      <td>Social GameWorks</td>
+      <td>False</td>
+      <td>False</td>
+      <td>-0.723042</td>
+    </tr>
+    <tr>
+      <th>524</th>
+      <td>Cerelink</td>
+      <td>False</td>
+      <td>False</td>
+      <td>-0.688752</td>
+    </tr>
+    <tr>
+      <th>1032</th>
+      <td>FirePower Technology</td>
+      <td>False</td>
+      <td>False</td>
+      <td>-0.671463</td>
+    </tr>
+    <tr>
+      <th>375</th>
+      <td>BlackLocus</td>
+      <td>True</td>
+      <td>True</td>
+      <td>0.717354</td>
+    </tr>
+    <tr>
+      <th>2827</th>
+      <td>SpectraLinear</td>
+      <td>True</td>
+      <td>True</td>
+      <td>0.737181</td>
+    </tr>
+    <tr>
+      <th>3229</th>
+      <td>Vela Systems</td>
+      <td>True</td>
+      <td>True</td>
+      <td>0.737181</td>
+    </tr>
+    <tr>
+      <th>1539</th>
+      <td>Kickfire</td>
+      <td>False</td>
+      <td>True</td>
+      <td>0.739819</td>
+    </tr>
+    <tr>
+      <th>2380</th>
+      <td>Pure Networks</td>
+      <td>True</td>
+      <td>True</td>
+      <td>0.744588</td>
+    </tr>
+    <tr>
+      <th>2060</th>
+      <td>NuConomy</td>
+      <td>True</td>
+      <td>True</td>
+      <td>0.745476</td>
+    </tr>
+    <tr>
+      <th>1573</th>
+      <td>Kovio</td>
+      <td>True</td>
+      <td>True</td>
+      <td>0.750662</td>
+    </tr>
+    <tr>
+      <th>1770</th>
+      <td>Mediamind</td>
+      <td>True</td>
+      <td>True</td>
+      <td>0.769136</td>
+    </tr>
+    <tr>
+      <th>2685</th>
+      <td>Simple</td>
+      <td>True</td>
+      <td>True</td>
+      <td>0.770361</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Interesting-high-confidence-predictions">
+<a class="anchor" href="#Interesting-high-confidence-predictions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Interesting high confidence predictions<a class="anchor-link" href="#Interesting-high-confidence-predictions"> </a>
+</h1>
+<p>I predicted that Kickfire was aquired with a 79% confidence, however the data provided by Crunchbase listed it as a closed.  After investigation, Kickfire was actually aquired in 2010 by <a href="https://www.teradata.com/">Teradata</a>.  Details can be found in this <a href="https://https://www.infoworld.com/article/2625533/teradata-buys-analytics-vendor-kickfire.html">article</a>.</p>
+<p>The other company that I predicted would get aquired is Breaktime Studios.  This company went under in 2016.</p>
+<p>While I was able to make accurate predictions on the limited data of market type and the amount of funding in each round.  It would have been helpful to know who was making the investments.  Was it credible VCs with a known trackrecord or individuals.  Stay tuined while I include investor data to the next model.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<details class="description" open="">
+      <summary class="btn btn-sm" data-open="Hide Code" data-close="Show Code"></summary>
+        <p></p>
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">cm</span><span class="o">=</span><span class="n">confusion_matrix</span><span class="p">(</span><span class="n">final_acquisition_predictions</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">final_acquisition_predictions</span><span class="o">.</span><span class="n">predict_acquisition</span><span class="p">,</span>  <span class="n">labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="n">plot_confusion_matrix</span><span class="p">(</span><span class="n">cm</span><span class="p">,</span> <span class="p">[</span><span class="s1">'closed'</span><span class="p">,</span><span class="s1">'aquired'</span><span class="p">],</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+    </details>
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_png output_subarea ">
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAecAAAHKCAYAAAA5P4O8AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAADh0RVh0U29mdHdhcmUAbWF0cGxvdGxpYiB2ZXJzaW9uMy4yLjIsIGh0dHA6Ly9tYXRwbG90bGliLm9yZy+WH4yJAAAgAElEQVR4nOzdeXxM9/7H8dckYg8TaSSWSGxBiGrtaqeWauxbq1dKtSitvY2qnYZqLRdVa1Ghumgpao0SWoral9S+tNYQxJZl8vvDL3OlsWSZZGbM+9nHPB43Z875zmdG7rzzXc45hqioqARERETEZjhZuwARERFJSuEsIiJiYxTOIiIiNkbhLCIiYmMUziIiIjZG4SwiImJjFM4iabRp0yaaNGmCr68vRqORZs2aZfhrhoaGYjQaCQ0NzfDXciQBAQEEBARYuwwRsyzWLkDkaY4dO8acOXMIDw/n/Pnz3L17Fzc3N8qXL88rr7xChw4dyJUrV6bWdObMGV577TWyZs1Khw4dyJcvH0WKFMnUGuSB8PBwAgMDee2115gxY4a1yxGxCIWz2LRPP/2UcePGYTKZqFSpEh07dsTV1ZXLly/z22+/0b9/f6ZOncqePXsyta7Nmzdz7949PvzwQ/r165dpr/vqq69SuXJlPD09M+01HcGKFSusXYJIEgpnsVmff/45n3zyCYUKFeKrr76iSpUqyfbZtGkTY8aMyfTaLly4AED+/Pkz9XXz5s1L3rx5M/U1HUHRokWtXYJIEppzFpt05swZxo0bh4uLC0uXLn1kMAPUq1eP1atXJ9u+YsUKXn31VYoUKYKnpydVqlRh7NixREdHJ9u3WbNmGI1Gzpw5w1dffUWNGjXw9PSkZMmS9OnThxs3bpj3DQ8Px2g0EhISAkCvXr0wGo0YjUbCw8OBJ89fPm7O+ODBg3Tr1o3y5cvj6elJsWLFqFGjBgMGDEjy+k+ac96/fz9vvvkmJUuWxMPDg7Jly9K7d29Onz6dbN+QkBBzO1u2bKFZs2YULlwYb29v2rdvT0RExCPrf5TEz6Rnz56cOnWKzp07U7RoUQoXLkyrVq04fPgwAFevXqVPnz6ULl0aT09P6taty5YtW5K1d+HCBcaPH0/jxo3x8/PDw8OD0qVL89Zbb3HkyJFk7yMwMBCAJUuWmP8tHv6MHq7v2LFjBAUFUbx4cdzc3Ni/fz+Q/N8sKiqK8uXL4+Hhwa5du5K8ZkJCAu3bt8doNDJr1qwUf04iqaGes9ik0NBQYmNjad26NeXKlXvivtmyZUvy89ixY5kwYQJubm60bt2avHnzsmnTJiZMmMAvv/zCL7/8gqura7J2hg8fTlhYGE2aNKFevXqEh4ezYMECTp48yc8//wxAkSJF+PDDD9m6dSvbtm3jlVdeMX+pp3XO+eDBgzRs2BCDwUDjxo0pWrQo0dHRnD17lsWLF9OrV6+n9pbXr1/PG2+8QXx8PIGBgRQtWpRDhw6xaNEiVq5cyYoVKyhfvnyy49auXcvq1atp2LAhXbp0ISIignXr1vHnn3+yY8cO3N3dU/w+zp49S4MGDShbtiydOnUiIiKC9evXExgYyLp162jTpg1ubm60atWKixcv8tNPP9GuXTt27dqFt7e3uZ3ffvuNyZMnU6tWLZo3b06uXLk4ceIEK1asMP/7Pf/88wDUrFmTs2fPsmTJEsqVK5dkUd6//0A6deoUDRo0oFSpUnTo0IFbt26RM2fOR74Xo9HIvHnzaNq0KV26dDEHPMDUqVNZt24dgYGBvPPOOyn+fERSQ+EsNmn79u0A1K1bN1XH7dy5kwkTJlCwYEE2btxIgQIFABgxYgQ9e/bkm2++YdSoUUyYMCHZsbt27WLbtm3moIiLiyMwMJDw8HB2795NxYoV8fHxYfDgwYSEhLBt2zaaNWtGp06d0vVelyxZwr1791i0aBGvvvpqkudu3bpF1qxZn3j87du36dGjB7Gxsfz000/Url3b/NzChQt5//336dGjB9u2bcNgMCQ5dtWqVSxbtow6deqYt40cOZJJkyaxaNEi+vTpk+L3sW3bNkaPHs17771n3tanTx8WLFhAgwYN6NChA+PGjTPXUK5cOUaPHs0XX3xhHokAqF27Nn/99VeyP6AOHDhAkyZNGDVqFD/88AMAtWrVAh58hgEBAQwePPix9W3fvp0BAwYwdOjQFL2fSpUqMXz4cD7++GN69epFaGgou3btYvTo0RQpUoSpU6em7IMRSQMNa4tNunTpEgAFCxZM1XFff/01AP379zcHM4DBYGDUqFHkyJGDxYsXExsbm+zYDz74IEkPLkuWLObg3b17d6rfQ2rlyJEj2TZXV9dkIwP/tmrVKiIjI2nevHmSYAbo3Lkzzz//PIcPH2bnzp3Jjm3Tpk2SYAYICgoCUv+efXx86NWrV5JtHTp0ACA2NpZhw4Yl+eOgffv2wIPQfZiHh8cjRzYCAgKoVasWW7dufeS/39Pkz5+fDz74IFXH9O7dmyZNmrBq1SrGjx9P165dAZg3b565Jy2SERTO8kzZt28fQLKQggdfzv7+/ty+fZvjx48ne75ChQrJthUuXBh4MAeZUVq3bo2zszOdOnXinXfeYdGiRfz1118pPv5J7xn+N/qQuN/DLPmey5Urh5NT0q8ULy8vAIoVK5bsdLfEP57++eefZG2tXbuWDh06UKpUKZ577jnzPPKaNWu4f/8+kZGRqaotsb6n/aHzKDNmzKBw4cKEhIRw9uxZhg0bRqVKlVLdjkhqaFhbbJKnpycRERGP/OJ+kps3bwKPX0WdeArSw4usEj1qXtfZ2RmA+Pj4VNWRGhUrVmTNmjV8/vnnrFy5km+//RZ4MIfdt29fc2/tcSz9nrNkefC1kNr3nCdPnmTbEj+/Rz2X+Dr/7gXPmDGDwYMHYzQaqVevHoULFyZHjhwYDAZWrVrFwYMHuX//fqpqg7SvrHdzc6N27dosXryY3Llz07lz5zS1I5IaCmexSdWqVWPLli1s3rw5VV+GiSFw+fLlRw47Jg6XPyosLMXJyemxw66PCkiAypUr88033xATE8P+/fvZtGkTs2fPpn///uTIkYPXXnvtsa/38Ht+lMx4z5YSFxfHuHHj8PT0ZPPmzeaed6JHDc2n1L/n21NqxYoVLF68GHd3dyIjI+nfvz9z585Ncx0iKaFhbbFJnTp1wsXFhRUrVphPxXmch3tRiat4E09retiVK1c4cuQIuXLlomTJkpYt+CFGo5HLly8/MqCfdrGUrFmzUqlSJQYNGsSXX34JwMqVK594zJPeM2A+XelRQ9i2JjIykhs3blClSpVkwRwdHf3IofmMHN04ffo0vXv3Jm/evISFhfHyyy/zww8/MH/+fIu/lsjDFM5ik3x8fAgODiY2Npb27dsnO9c00ZYtW5KscH7jjTcAmDhxornHCA/OTR0+fDh37tzhtddew8XFJcNqr1SpEnFxcSxYsCDJ9o0bN5pXGT9sx44d3L17N9n2xPofd7pPombNmpEvXz6WL1/Otm3bkjwXGhrKnj17KFOmDJUrV07tW8l0Hh4e5MyZk7179yY5Jz02Npbg4OBHzjXny5cPgPPnz1u0ltjYWLp27crNmzeZNm0aPj4+fPnllxQoUIDBgwdz6NAhi76eyMM0rC02a8CAAcTFxTF+/HgaNmxIlSpVeOGFF3B1deXKlSts376diIgIihcvbj6mSpUq9O/fn4kTJ1K9enVatmxJnjx52LRpE/v27cPf359hw4ZlaN3du3cnNDSUQYMGsWXLFnx8fIiIiCAsLIzAwECWL1+eZP8pU6awZcsWqlevjo+PD66urhw/fpy1a9eSI0cOevbs+cTXy5UrF1988QWdO3emZcuWNG/eHF9fXw4ePMi6devImzcvM2bMSPOwbmZycnKie/fuTJo0iRo1avDKK68QGxtLeHg4169fp1atWslGCEqWLEnhwoX5/fffefvttylevDjOzs40bdr0qefIP8nw4cP5888/efvtt80XOnF3d2f27Nm0aNGCrl27EhYWlunXdRfHoHAWm/bhhx/SqlUr5syZw9atW1myZAl37tzBzc2NcuXK8c477ySbjx02bBjly5dn1qxZfPfdd9y/fx8fHx8GDhxInz59HnmajiX5+fmxYsUKRo8ezYYNG3BycuKFF15gxYoVnDp1Klk4d+vWDTc3N3bv3s2OHTuIjY2lQIECdOzYkd69e+Pn5/fU12zSpAnr1q1j4sSJbN68meXLl+Ph4cFrr73GBx98gK+vbwa9W8sbMmQI7u7ufP3118yfP588efJQt25dPv744yTnQydydnZm0aJFjBgxgrVr13Lr1i0SEhIoWLBgmsP5l19+4YsvviAgICDZ5WFr1qzJoEGDGDduHAMHDtTNNiRDGKKiohKsXYSIiIj8j+acRUREbIzCWUREJA22bdtGx44dKVOmzGNvSJOob9++GI3GFF/2VeEsIiKSBrdv38bf359x48Y98vK7iZYvX87u3buTXFL4aRTOIiIiadCoUSOGDRtGixYtkl26NtHZs2cJDg5mzpw55qvipYTCWUREJAPExcXRrVs3Bg4cSKlSpVJ1rMJZREQkA4SEhJAvXz7eeuutVB+r85wzmFfdIdYuwe6Fz36TWm/Pt3YZdu/05knWLuGZcO6vfXj7PW/tMuxe9oQ7Vnldr3opu5/3wy5uGp3qY8LDw1m8ePFjL6v7NOo5i4iI4zAYUv9Ig61bt3Lx4kVKlSqFu7s77u7unDt3juHDh+Pv7//U49VzFhERsbBu3brRokWLJNvatGlDmzZtCAoKeurxCmcREXEcBssNGEdHR3Py5EkATCYT58+fZ//+/bi5ueHt7Y2Hh0eS/bNkyYKnp2eK7oqnYW0REXEcFhzW3rNnD7Vr16Z27drcvXuXkJAQateuzSeffJLuMtVzFhERx2HBnnOtWrWIiopK8f4HDhxI8b4KZxERcRx2cOtU0LC2iIiIzVHPWUREHIcFh7UzksJZREQch50MayucRUTEcdhJz9k+qhQREXEg6jmLiIjj0LC2iIiIjbGTYW2Fs4iIOA71nEVERGyMnfSc7aNKERERB6Kes4iIOA476TkrnEVExHE4ac5ZRETEtthJz9k+qhQREXEg6jmLiIjj0KlUIiIiNsZOhrUVziIi4jjUcxYREbExdtJzto8qRUREHIh6ziIi4jg0rC0iImJj7GRYW+EsIiKOw056zvbxJ4SIiIgDUc9ZREQch4a1RUREbIydDGsrnEVExHGo5ywiImJj7CSc7aNKERERB6Kes4iIOA7NOYuIiNgYOxnWVjiLiIjjsJOes338CSEiIuJA1HMWERHHoWFtERERG2Mnw9oKZxERcRgGOwln++jfi4iI2Jht27bRsWNHypQpg9FoJDQ01PxcbGwsw4cPp0aNGhQsWJBSpUrRrVs3zp07l6K2Fc4iIuIwDAZDqh+Pc/v2bfz9/Rk3bhw5cuRI8tydO3fYt28fAwcOZPPmzSxevJi///6btm3bEhcX99Q6NawtIiKOw4Kj2o0aNaJRo0YAvPvuu0mey5s3Lz/99FOSbZMmTaJatWpERERQtmzZJ7atcBYREYdhzTnnW7duAWA0Gp+6r8JZREQchrXCOSYmho8//pgmTZpQqFChp+6vcBYREclAcXFxvPPOO9y4cYMlS5ak6BiFs4iIOIzM7jnHxcXx1ltvcfjwYVauXEm+fPlSdJzCWUREHEZmhnNsbCxdu3blyJEjrFy5Ek9PzxQfq3AWERHHYcFsjo6O5uTJkwCYTCbOnz/P/v37cXNzo0CBAgQFBbFnzx6WLFmCwWDg0qVLAOTJkyfZqVf/pvOcRURE0mDPnj3Url2b2rVrc/fuXUJCQqhduzaffPIJf//9N6tXr+bChQvUrVuXUqVKmR/Lli17atvqOYuIiMOw5LB2rVq1iIqKeuzzT3ruaRTOIiLiMOzl2toKZxERcRgKZxERERtjL+GsBWEiIiI2Rj1nERFxHPbRcVY4i4iI47CXYW2Fs4iIOAx7CWfNOYuIiNgY9ZxFRMRh2EvPWeEsIiKOwz6yWeEsIiKOQz1nERERG2Mv4awFYSIiIjZGPWcREXEY9tJzVjiLiIjDUDiLiIjYGvvIZs05i4iI2Br1nEVExGFoWFtERMTG2Es4a1hbrO6lF4vz3eTunFg7hrt7pvFGYNXH7jt1SEfu7plG3/80yMQKxdH9vi2czh1bUaG0L5UrV+ab0IXWLknSyGAwpPphDQpnsbrcObNx+Pg/DJzwPXfuxjx2v1YNK1CpnA//XI7KxOpE4PbtaEqXKcvocZ+TLVs2a5cj6WFIw8MKFM5idWu3Hmb4tJ/5ccNeTAkJj9ynSAE3PhvUljc/mk9sXHwmVyiOrmGjpnw0fAyBLdvg5KSvTcl4mnMWu7AgpAvj5qwh4tQla5ciInZMc84ZzGg0snz5cqvWMGjQIJo1a2bVGhxBoUKFuBp1m9nfbbV2KSJi5+xlzlk9Z7FptSqWxN3dnZ4jp1i7FBF5BthLz1nhLDatdqWSuLi4cGrdWPO2LFmcGdOnBb071aVEk6FWrE5EJGPY9LB2QkICU6dO5cUXXyR//vz4+/szcuTIR+576NAhWrRogZeXF76+vvTs2ZMbN24keb558+Z4e3tTqFAhXnrpJbZs2WJ+/ujRo7Rv357ChQtTokQJ3nrrLS5d+t/8Znx8PB9//DE+Pj74+PgQHBxMfLwWJmW0Wd9u4dChQ1TtOM78+OdyFFNDN9G0+1RrlycidsZehrVtOpxHjRrFhAkT6NevH9u3b2f+/PkUKlQo2X63b9+mTZs25MqVi40bN7Jo0SL++OMPevfubd7n7bffxsvLi40bNxIeHk5wcDDZs2cH4OLFi7zyyiuUKVOGjRs38tNPPxEdHc3rr7+OyWQCYNq0aSxcuJDJkyezfv164uPj+e677zLng3jG5cqRlfJ+hSjvVwgngwHvAm6U9yuEt5cbV65Hc+/ePQ6fuGB+xMbFc+nqTY6duWzt0sVB3I6O5uD+vRzcvxeTycTf589ycP9ezp87a+3SJLXs5FQqQ1RU1KPPXbGy6OhoihcvTkhICF27dk32vNFoZMGCBbRo0YIFCxYwdOhQDh06hKurKwDh4eEEBgby559/UqxYMby9vRk/fjyvv/56srbGjh3Ljh07WLFihXlbVFQUvr6+bNy4kYoVK1K6dGm6devGwIEDATCZTFSuXBkvLy9WrVr12Pdx7Nix9H4UzzxXV1dKlSqVbPvVq1c5ffp0su0BAQFcvnw5yciGSEbavXs3PXr0SLa9WbNmjBgxIvMLegaULFnSKq/7wshtqT5mz/CXMqCSJ7PZOeeIiAju379PnTp1UrRv2bJlzcEMULVqVZycnDh69CjFihXj3Xff5f3332fJkiXUqVOH5s2b4+fnB8C+ffv47bffHtkrP3XqFCVKlODixYtUrlzZvN3JyYmKFSvy999/P7G2Wm/PT9kblscKn/2mPkcLOL15krVLsFvefs/T8rUHnYRzf+3D2+95K1f0DEi4Y5WX1YIwG5H4DzF48GDat2/P+vXrCQsLY/z48UycOJH//Oc/mEwmGjVqxJgxY5Id7+HhYR7aFhERyQw2O+fs5+dHtmzZ2Lx581P3LVWqFIcOHeLWrVvmbTt27MBkMiUZLi1evDg9evTg22+/5T//+Q9ff/01AM8//zxHjx7F29ubYsWKJXm4urqSN29evLy82LVrl7mthIQE/vzzTwu+YxERyWgGQ+of1mCz4ezq6kqPHj0YOXIkixYt4tSpU+zevZu5c+cm27ddu3bkzJmTHj16cOjQIbZt20a/fv0IDAykWLFi3L17l4EDBxIeHs6ZM2fYtWsX27dvNwd3t27duHnzJl26dGHXrl2cPn2aX3/9lT59+pgDv0ePHkyZMoXly5dz7NgxgoODNecpImJn7GW1tk0Paw8fPhyj0WhesZ0/f346duyYbL+cOXPyww8/MHjwYBo0aEC2bNl45ZVXGDduHADOzs5ERUXx7rvvcunSJfLly0fjxo0ZPXo0AAUKFGDt2rWMHDmSNm3acP/+fQoXLky9evXMF7nv3bs3ly5d4r333gOgQ4cOtGvXjoiIiEz6NEREJL3sZMrZdldrPyu86g6xdgl2TwvCLEMLwixDC8IsI7uVFoRVHvt7qo/ZOaR6BlTyZDbdcxYREbEke1mtbbNzziIiIpZmyQVh27Zto2PHjpQpUwaj0UhoaGiS5xMSEggJCaF06dJ4eXnRrFkzjhw5kqI6Fc4iIuIwnJwMqX48zu3bt/H392fcuHHkyJEj2fNTpkxh+vTpjB8/nrCwMDw8PGjVqlWSM4seW2e63qWIiIgdsWTPuVGjRgwbNowWLVrg5JQ0ThMSEpgxYwZ9+/alRYsW+Pv7M2PGDKKjo/n++++fWqfCWURExMLOnDnDpUuXqF+/vnlbjhw5qFGjBjt27Hjq8VoQJiIiDiOzFoQlXgfDw8MjyXYPDw8uXLjw1OMVziIi4jDsZLG2hrVFRMRxZNYVwjw9PQG4cuVKku1Xrlwhf/78Tz1e4SwiImJhPj4+eHp6smnTJvO2e/fu8fvvv1O1atWnHq9hbRERcRiWnHOOjo7m5MmTAJhMJs6fP8/+/ftxc3PD29ubnj17MnHiREqWLEmJEiX47LPPyJUrF23btn1q2wpnERFxGJacc96zZw+BgYHmn0NCQggJCeG1115jxowZ9OnTh7t37zJo0CCioqKoWLEiy5Ytw9XV9altK5xFRMRhWLLnXKtWLaKiop74WoMHD2bw4MGpblvhLCIiDkOrtUVERCRN1HMWERGHYS93pVI4i4iIw7CTbFY4i4iI47CXnrPmnEVERGyMes4iIuIw7KTjrHAWERHHYS/D2gpnERFxGHaSzQpnERFxHPbSc9aCMBERERujnrOIiDgMO+k4K5xFRMRx2MuwtsJZREQchp1ks+acRUREbI16ziIi4jA0rC0iImJjFM4iIiI2xk6yWeEsIiKOw156zloQJiIiYmPUcxYREYdhJx1nhbOIiDgOexnWVjiLiIjDsJNs1pyziIiIrVHPWUREHIaTnXSdFc4iIuIw7CSbHx/Obm5uqZ44NxgMREZGprsoERGRjGD3C8I++OADu3kTIiIiKeFkJ7H22HAePHhwZtYhIiIi/09zziIi4jDsZUQ4VadSHT9+nHfeeYcyZcrg4eHB5s2bAYiMjKRXr17s2rUrQ4oUERGxBIMh9Q9rSHE4HzhwgPr167Np0yYqV65MfHy8+Tl3d3eOHDnC3LlzM6RIERERSzCk4T9rSHE4jxw5Ek9PT3bt2sWkSZNISEhI8nyDBg3YsWOHxQsUERFxNCkO5+3btxMUFETevHkfOWbv7e3NxYsXLVqciIiIJTkZUv+whlQtCMuWLdtjn7t8+fITnxcREbG2Z25B2PPPP8/atWsf+VxsbCw//PADlStXtlhhIiIilvbMLQgbMGAAYWFhvP/++xw4cACAixcvsmHDBpo3b87x48fp379/hhUqIiKSXk4GQ6ofjxMfH8+YMWMoX748np6elC9fnjFjxhAXF5fuOlM8rF2/fn1mzpzJBx98wKJFiwDo2bMnCQkJ5M2bl1mzZlGtWrV0FyQiImIPJk+ezJw5c5gxYwb+/v4cOnSInj17kjVrVj744IN0tZ2qOed27drRrFkzwsLCOHnyJCaTiaJFi1K/fn1cXV3TVYiIiEhGs+Qw9R9//EGTJk1o2rQpAD4+PjRt2pTdu3enu+1UXyEsZ86cvPrqq+l+YRERkcxmyQVh1apVY+7cufz111/4+flx9OhRwsPD6devX7rbTnU4b968mbVr13L27FkAihQpQuPGjalTp066ixEREclIluw59+3bl+joaKpWrYqzszNxcXEMHDiQbt26pbvtFIfz7du36dq1K+vXrychIQGj0QjAqlWr+PLLL2nQoAFfffUVuXPnTndRIiIitm7ZsmV88803zJkzh9KlS3PgwAGCg4MpUqQInTt3TlfbKV6t/fHHH7Nu3ToGDhzIiRMnOHXqFKdOneLEiRMMGDCADRs2MHTo0HQVIyIikpEsuVp72LBh9O7dmzZt2lC2bFk6duxIr169mDRpUvrrTOmOP/74I0FBQXz00Ufky5fPvD1fvnwMGTKEzp078+OPP6a7IBERkYxiSMPjce7cuYOzs3OSbc7OzphMpnTXmeJwNplMBAQEPPb5gICAZNfbFhERsSUGgyHVj8dp0qQJkydPZu3atZw5c4aff/6Z6dOnW2TRdIrnnBs1asTatWt56623Hvn82rVradSoUboLEhERySiWvFb2p59+ytixYxkwYABXr17F09OToKCgdJ/jDE8I5ytXriT5edCgQXTt2pUOHTrw9ttvU6xYMQBOnDjB7NmzuXDhAmPGjEl3QSIiIvbA1dWVcePGMW7cOIu3/dhw9vPzS9adT0hI4PDhw6xfvz7ZdoAaNWoQGRlp8SJFREQswV5ufPHYcP7ggw/s5k2IiIikhL3E2mPDefDgwZlZh4iISIazl05nildri4iISOZI9eU7d+zYwd69e7l582ayc7kMBoNFVqmJiIhkBEuu1s5IKQ7nqKgoOnTowM6dO0lISMBgMJgXgiX+b4WziIjYsmduWHv48OHs37+fWbNmsXfvXhISEli2bBm7d++mc+fOlC9fnr/++isjaxUREUkXS14hLCOlOJzXrl1L586dadu2rfnezU5OThQrVozJkydToEABPvroowwrVEREJL0seW3tDK0zpTtev36dsmXLAuDi4gI8uFNVopdffpkNGzZYuDwRERHHk+I55/z583P16lXgwVVRXF1dOXbsmPn569evEx8fb/kKRURELMROppxTHs6VK1fm999/N//csGFDpk6dipeXFyaTiS+++IIqVapkSJEiIiKW8MwtCEu8nva9e/cAGD16NPny5aNHjx68++675MuXL0OuLyoiImIpBkPqH9aQ4p5z9erVqV69uvnnQoUKsX37dg4dOoSzszN+fn5kyZLq06ZFRETkX9KVpk5OTk+8x7OIiIgtsdbq69R6bDifO3cuTQ16e3unuRgREZGMZCfZ/PhwLl++fDcE8ZEAACAASURBVJomzq9du5augkRERDKKvSwIe2w4T5s2zW7ehC27vnOatUuwewf37tLnaAFvLNxt7RKeCcHlodf3+61dht2b26aEtUuwaY8N506dOmVmHSIiIhnOXm7FqOXVIiLiMOxlRFjhLCIiDuOZu2WkiIiIvbOXcLaX4XcRERGHoZ6ziIg4DM05i4iI2Jhnclg7JiaGhQsX8vbbb9OyZUv27dsHQFRUFEuWLOHvv//OkCJFREQs4Zm78cW1a9cIDAzk8OHD5M+fnytXrhAVFQVAnjx5GDt2LEePHmXkyJEZVqyIiIgjSHHPefjw4Zw7d441a9bw22+/kZCQ8L9GnJxo3rw569evz5AiRURELMHJYEj1wyp1pnTHNWvW0L17d6pWrfrICfXixYtz/vx5ixYnIiJiSU5peFhDioe1b926ReHChR/7/P3794mPj7dIUSIiIhnBThZrp/yPgmLFirFnz57HPh8WFkaZMmUsUpSIiEhGeOaGtYOCgli8eDHffvstJpMJeHC+2J07dxgxYgRhYWF06dIlwwoVERFxFCke1u7evTtHjx6le/fuuLq6AtC1a1eioqKIj4+nW7duupOViIjYNHsZ1k7VRUgmTZpEx44d+fHHHzl58iQmk4miRYvSqlUratSokVE1ioiIWIS9XIQk1VcIq1q1KlWrVs2IWkRERDKUteaQU0s3vhAREbExKe45ly9f/qkXDDcYDOzduzfdRYmIiGQEO+k4pzycX3rppWThHB8fz7lz59ixYwdlypShfPnyFi9QRETEUiw953zx4kVGjBjB+vXriY6OxtfXl88//5yaNWumq90Uh/OMGTMe+9yBAwdo06YN7du3T1cxIiIiGcmA5dI5KiqK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%0A">
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+</div>
+
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="patrick-hanley/thought_experiments"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/thought_experiments/embeddings/venture%20capital/shallow%20neural%20nets/2021/02/13/_02_13_neural_nets_crunchbase.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/thought_experiments/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/thought_experiments/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/thought_experiments/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>An easy to use blogging platform with support for Jupyter Notebooks.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/fastai" title="fastai"><svg class="svg-icon grey"><use xlink:href="/thought_experiments/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/fastdotai" title="fastdotai"><svg class="svg-icon grey"><use xlink:href="/thought_experiments/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
