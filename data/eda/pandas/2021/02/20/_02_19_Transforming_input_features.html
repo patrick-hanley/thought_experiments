@@ -78,7 +78,7 @@ window.onload = wrap_img;
        • <span class="read-time" title="Estimated read time">
     
     
-      8 min read
+      9 min read
     
 </span></p>
 
@@ -112,72 +112,6 @@ window.onload = wrap_img;
         
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><a href="https://colab.research.google.com/github/patrick-hanley/thought_experiments/blob/master/_notebooks/2021_02_19_Transforming_input_features.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab" /></a></p>
-
-</div>
-</div>
-</div>
-    
-    
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Standard Library Imports</span>
-
-<span class="o">%</span><span class="k">reload_ext</span> autoreload
-<span class="o">%</span><span class="k">autoreload</span> 2
-<span class="o">%</span><span class="k">matplotlib</span> inline
-
-<span class="o">!</span>pip install fastai --upgrade --q
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">pandas.api.types</span> <span class="kn">import</span> <span class="n">is_string_dtype</span><span class="p">,</span> <span class="n">is_numeric_dtype</span><span class="p">,</span> <span class="n">is_categorical_dtype</span>
-<span class="kn">from</span> <span class="nn">fastai.tabular.all</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-
-<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">PowerTransformer</span>
-<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">QuantileTransformer</span>
-<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">PowerTransformer</span>
-<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">QuantileTransformer</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">kurtosis</span><span class="p">,</span> <span class="n">skew</span>
-<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">stats</span>
-<span class="kn">import</span> <span class="nn">math</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
-<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">)</span>
-
-<span class="kn">from</span> <span class="nn">google.colab</span> <span class="kn">import</span> <span class="n">drive</span>
-<span class="n">mnt</span><span class="o">=</span><span class="n">drive</span><span class="o">.</span><span class="n">mount</span><span class="p">(</span><span class="s1">&#39;/content/gdrive&#39;</span><span class="p">,</span> <span class="n">force_remount</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-<div class="output_area">
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>     |████████████████████████████████| 194kB 6.0MB/s 
-     |████████████████████████████████| 61kB 7.3MB/s 
-Mounted at /content/gdrive
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>
-    
-
-<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="I-will-explore-the-transformations-using-the-wine-data-set-from-Kaggle.">I will explore the transformations using the <a href="https://www.kaggle.com/uciml/red-wine-quality-cortez-et-al-2009">wine data set</a> from Kaggle.<a class="anchor-link" href="#I-will-explore-the-transformations-using-the-wine-data-set-from-Kaggle."> </a></h1>
 </div>
 </div>
@@ -199,13 +133,11 @@ Mounted at /content/gdrive
     
     
 <div class="cell border-box-sizing code_cell rendered">
-<details class="description" open="">
-      <summary class="btn btn-sm" data-open="Hide Code" data-close="Show Code"></summary>
-        <p><div class="input">
+<div class="input">
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#collapse-show</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#collapse_output</span>
 
 <span class="c1"># https://www.marsja.se/transform-skewed-data-using-square-root-log-box-cox-methods-in-python/</span>
 <span class="k">def</span> <span class="nf">box_cox_transform</span><span class="p">(</span><span class="n">bc</span><span class="p">,</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">):</span>
@@ -242,8 +174,8 @@ Mounted at /content/gdrive
   <span class="n">k</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%.2f</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">kurtosis</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
   <span class="n">k2</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">normaltest</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
   <span class="n">ks</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%.2f</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">k2</span><span class="p">)</span>
-  <span class="n">pvalue</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%.2f</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
-  <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">trns_name</span><span class="p">,</span> <span class="n">s_str</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">ks</span><span class="p">,</span><span class="n">pvalue</span><span class="p">])</span>
+  <span class="c1"># pvalue = &#39;%.2f&#39;%(p)</span>
+  <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">trns_name</span><span class="p">,</span> <span class="n">s_str</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">ks</span><span class="p">])</span>
   <span class="k">return</span> <span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">k2</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">plot_transforms</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">feat</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -289,7 +221,8 @@ Mounted at /content/gdrive
 
 
   <span class="c1">#Set up fix and axes for plotting</span>
-  <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">figaspect</span><span class="p">(</span><span class="o">.</span><span class="mi">2</span><span class="p">))</span>
+  <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">figaspect</span><span class="p">(</span><span class="o">.</span><span class="mi">2</span><span class="p">),</span> 
+                           <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
   <span class="c1"># trackers for skew and kurtosis</span>
   <span class="n">s_best</span> <span class="o">=</span> <span class="mf">9999.</span>
@@ -428,8 +361,7 @@ Mounted at /content/gdrive
     </div>
 </div>
 </div>
-</p>
-    </details>
+
 </div>
     
 
@@ -444,9 +376,202 @@ Mounted at /content/gdrive
 </div>
 </div>
 </div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Dataset Shape: (1599, 12)
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Name</th>
+      <th>dtypes</th>
+      <th>Missing</th>
+      <th>Uniques</th>
+      <th>First Value</th>
+      <th>Second Value</th>
+      <th>Third Value</th>
+      <th>Entropy</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>fixed acidity</td>
+      <td>float64</td>
+      <td>0</td>
+      <td>96</td>
+      <td>7.4000</td>
+      <td>7.8000</td>
+      <td>7.800</td>
+      <td>5.94</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>volatile acidity</td>
+      <td>float64</td>
+      <td>0</td>
+      <td>143</td>
+      <td>0.7000</td>
+      <td>0.8800</td>
+      <td>0.760</td>
+      <td>6.39</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>citric acid</td>
+      <td>float64</td>
+      <td>0</td>
+      <td>80</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>0.040</td>
+      <td>5.87</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>residual sugar</td>
+      <td>float64</td>
+      <td>0</td>
+      <td>91</td>
+      <td>1.9000</td>
+      <td>2.6000</td>
+      <td>2.300</td>
+      <td>4.78</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>chlorides</td>
+      <td>float64</td>
+      <td>0</td>
+      <td>153</td>
+      <td>0.0760</td>
+      <td>0.0980</td>
+      <td>0.092</td>
+      <td>6.22</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>free sulfur dioxide</td>
+      <td>float64</td>
+      <td>0</td>
+      <td>60</td>
+      <td>11.0000</td>
+      <td>25.0000</td>
+      <td>15.000</td>
+      <td>5.08</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>total sulfur dioxide</td>
+      <td>float64</td>
+      <td>0</td>
+      <td>144</td>
+      <td>34.0000</td>
+      <td>67.0000</td>
+      <td>54.000</td>
+      <td>6.60</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>density</td>
+      <td>float64</td>
+      <td>0</td>
+      <td>436</td>
+      <td>0.9978</td>
+      <td>0.9968</td>
+      <td>0.997</td>
+      <td>7.96</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>pH</td>
+      <td>float64</td>
+      <td>0</td>
+      <td>89</td>
+      <td>3.5100</td>
+      <td>3.2000</td>
+      <td>3.260</td>
+      <td>5.91</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>sulphates</td>
+      <td>float64</td>
+      <td>0</td>
+      <td>96</td>
+      <td>0.5600</td>
+      <td>0.6800</td>
+      <td>0.650</td>
+      <td>5.73</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>alcohol</td>
+      <td>float64</td>
+      <td>0</td>
+      <td>65</td>
+      <td>9.4000</td>
+      <td>9.8000</td>
+      <td>9.800</td>
+      <td>5.19</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>quality</td>
+      <td>int64</td>
+      <td>0</td>
+      <td>6</td>
+      <td>5.0000</td>
+      <td>5.0000</td>
+      <td>5.000</td>
+      <td>1.71</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>I wanted a simple way to visualize the distributions of the feaatures and also quickly see how they could be transormed into a normal distribution.  I created a library that runs the Transforms listed above on each feature and selects the optimal transform based on the skew and kurtosis.</p>
+<p>I wanted a simple way to visualize the distributions of the feaatures and also quickly see how they could be transormed into a guasian distribution needed for neural networks.  I created a library that runs the Transforms listed above on each feature and automatically selects the optimal transform based on the skew and kurtosis.</p>
 <p>Let's see an example.  The plots below are only evaluating 1 feature ('alcohol'), however, in practice, we would do this for the entire dataset.</p>
 
 </div>
@@ -466,38 +591,19 @@ Mounted at /content/gdrive
 </div>
 </div>
 
-<div class="output_wrapper">
-<div class="output">
-
-<div class="output_area">
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>alcohol 65
-Best:trans_qt
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-
-
-<div class="output_png output_subarea ">
-<img src="data:image/png;base64,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
-" />
-</div>
-
-</div>
-
-</div>
-</div>
-
 </div>
     
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>In the plot above, we see that the most gausian distribution came from the Quantile Transformation.  This is also the Transformation that was selected as the most optimum.</p>
+<p><img src="https://raw.githubusercontent.com/patrick-hanley/thought_experiments/blob/master/images/wine_dataset/skew_alcohol.png" alt="&#39;did this work?&#39;" /></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In the plot above, we visually see that the most gausian distribution came from the Quantile Transformation.  This is also the Transformation that was automatically selected based on skew and kertosis as the most optimum.</p>
 
 </div>
 </div>
@@ -561,9 +667,16 @@ Best:trans_qt
 <p>The Clip transformation does a few things.</p>
 <ol>
 <li>Clips values to be within X number of standard deviations.</li>
-<li>The values outside the range, will be adjusted to 1 of the 3 options: (X standard deviations, mean, or median)</li>
+<li>The values outside the range, will be adjusted to 1 of the 3 options:<blockquote><ul>
+<li>X standard deviations</li>
+<li>mean</li>
+<li>median</li>
+</ul>
+</blockquote>
+</li>
 <li>Additional columns will be added to indicate if a value was clipped low or high.</li>
 </ol>
+<p>Let's see a sample output.</p>
 
 </div>
 </div>
@@ -686,7 +799,7 @@ Best:trans_qt
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Now, lets run our clipped features through the Transforms.  We can see the bin around 13 increased significantly. Also, transforming the clipped version degraded the Quantile normalization.</p>
+<p>Now, lets run our clipped features through the Transforms.  We can see the bin around 13 increased significantly (aatches 2 standard deviations). Also, transforming the clipped version degraded the Quantile normalization.</p>
 
 </div>
 </div>
@@ -1099,7 +1212,7 @@ Average Accuracy: 0.9056603908538818</p>
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Looks like the most important feature with the Quantile transform of 'alcohol'. Which shows we are on the right track.</p>
+<p>The most important feature with the Quantile transform of 'alcohol'. Which shows we are on the right track.</p>
 
 </div>
 </div>
