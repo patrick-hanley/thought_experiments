@@ -4,20 +4,20 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.6.1 -->
-<title>Using OpenCV and computer vision to detect PCB assembly defects | What Patrick is thinking about</title>
+<title>Using OpenCV to dynamically count all the points in a dominoes game | What Patrick is thinking about</title>
 <meta name="generator" content="Jekyll v4.1.1" />
-<meta property="og:title" content="Using OpenCV and computer vision to detect PCB assembly defects" />
+<meta property="og:title" content="Using OpenCV to dynamically count all the points in a dominoes game" />
 <meta property="og:locale" content="en_US" />
-<meta name="description" content="An inexpensive and simple way to catch assembly errors" />
-<meta property="og:description" content="An inexpensive and simple way to catch assembly errors" />
-<link rel="canonical" href="https://patrick-hanley.github.io/thought_experiments/opencv/computer%20vision/augmentation/2021/02/20/_02_14_computer_vision_analyze_defects.html" />
-<meta property="og:url" content="https://patrick-hanley.github.io/thought_experiments/opencv/computer%20vision/augmentation/2021/02/20/_02_14_computer_vision_analyze_defects.html" />
+<meta name="description" content="It all started with a bet" />
+<meta property="og:description" content="It all started with a bet" />
+<link rel="canonical" href="https://patrick-hanley.github.io/thought_experiments/computer%20vision/opencv/augmentation/2021/02/21/_02_02_computer_vision_counting.html" />
+<meta property="og:url" content="https://patrick-hanley.github.io/thought_experiments/computer%20vision/opencv/augmentation/2021/02/21/_02_02_computer_vision_counting.html" />
 <meta property="og:site_name" content="What Patrick is thinking about" />
-<meta property="og:image" content="https://patrick-hanley.github.io/thought_experiments/images/opencv_pcb_defects/Feb-14-2021_13-23-13_defects.gif" />
+<meta property="og:image" content="https://patrick-hanley.github.io/thought_experiments/images/domino_vids/Feb-13-2021%2022-27-17_dominoes.gif" />
 <meta property="og:type" content="article" />
-<meta property="article:published_time" content="2021-02-20T00:00:00-06:00" />
+<meta property="article:published_time" content="2021-02-21T00:00:00-06:00" />
 <script type="application/ld+json">
-{"url":"https://patrick-hanley.github.io/thought_experiments/opencv/computer%20vision/augmentation/2021/02/20/_02_14_computer_vision_analyze_defects.html","@type":"BlogPosting","headline":"Using OpenCV and computer vision to detect PCB assembly defects","dateModified":"2021-02-20T00:00:00-06:00","datePublished":"2021-02-20T00:00:00-06:00","image":"https://patrick-hanley.github.io/thought_experiments/images/opencv_pcb_defects/Feb-14-2021_13-23-13_defects.gif","mainEntityOfPage":{"@type":"WebPage","@id":"https://patrick-hanley.github.io/thought_experiments/opencv/computer%20vision/augmentation/2021/02/20/_02_14_computer_vision_analyze_defects.html"},"description":"An inexpensive and simple way to catch assembly errors","@context":"https://schema.org"}</script>
+{"url":"https://patrick-hanley.github.io/thought_experiments/computer%20vision/opencv/augmentation/2021/02/21/_02_02_computer_vision_counting.html","@type":"BlogPosting","headline":"Using OpenCV to dynamically count all the points in a dominoes game","dateModified":"2021-02-21T00:00:00-06:00","datePublished":"2021-02-21T00:00:00-06:00","image":"https://patrick-hanley.github.io/thought_experiments/images/domino_vids/Feb-13-2021%2022-27-17_dominoes.gif","mainEntityOfPage":{"@type":"WebPage","@id":"https://patrick-hanley.github.io/thought_experiments/computer%20vision/opencv/augmentation/2021/02/21/_02_02_computer_vision_counting.html"},"description":"It all started with a bet","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/thought_experiments/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://patrick-hanley.github.io/thought_experiments/feed.xml" title="What Patrick is thinking about" /><link rel="shortcut icon" type="image/x-icon" href="/thought_experiments/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
@@ -72,8 +72,8 @@ window.onload = wrap_img;
         <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
 
   <header class="post-header">
-    <h1 class="post-title p-name" itemprop="name headline">Using OpenCV and computer vision to detect PCB assembly defects</h1><p class="page-description">An inexpensive and simple way to catch assembly errors</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2021-02-20T00:00:00-06:00" itemprop="datePublished">
-        Feb 20, 2021
+    <h1 class="post-title p-name" itemprop="name headline">Using OpenCV to dynamically count all the points in a dominoes game</h1><p class="page-description">It all started with a bet</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2021-02-21T00:00:00-06:00" itemprop="datePublished">
+        Feb 21, 2021
       </time>
        • <span class="read-time" title="Estimated read time">
     
@@ -85,10 +85,10 @@ window.onload = wrap_img;
     
       <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
       
-        <a class="category-tags-link" href="/thought_experiments/categories/#opencv">opencv</a>
+        <a class="category-tags-link" href="/thought_experiments/categories/#computer vision">computer vision</a>
         &nbsp;
       
-        <a class="category-tags-link" href="/thought_experiments/categories/#computer vision">computer vision</a>
+        <a class="category-tags-link" href="/thought_experiments/categories/#opencv">opencv</a>
         &nbsp;
       
         <a class="category-tags-link" href="/thought_experiments/categories/#augmentation">augmentation</a>
@@ -102,15 +102,20 @@ window.onload = wrap_img;
 
   <div class="post-content e-content" itemprop="articleBody">
     <ul class="section-nav">
-<li class="toc-entry toc-h1"><a href="#Problem">Problem </a></li>
-<li class="toc-entry toc-h1"><a href="#Solution">Solution </a></li>
-<li class="toc-entry toc-h1"><a href="#Analysis-description">Analysis description </a></li>
-<li class="toc-entry toc-h1"><a href="#Final-outcome">Final outcome </a></li>
+<li class="toc-entry toc-h3"><a href="#I-was-bet-that-I-couldn't-write-a-program-to-count-all-the-points-left-on-the-table-during-a-dominoes-game.">I was bet that I couldn&#39;t write a program to count all the points left on the table during a dominoes game. </a></li>
+<li class="toc-entry toc-h1"><a href="#The-Problem">The Problem </a></li>
+<li class="toc-entry toc-h1"><a href="#The-Bet">The Bet </a></li>
+<li class="toc-entry toc-h1"><a href="#The-Solution">The Solution </a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#Use-openCV-for-video-processing">Use openCV for video processing </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#I-won.">I won. </a></li>
 </ul><!--
 #################################################
 ### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
 #################################################
-# file to edit: _notebooks/2021_02_14_computer_vision_analyze_defects.ipynb
+# file to edit: _notebooks/2021_02_02_computer_vision_counting.ipynb
 -->
 
 <div class="container" id="notebook-container">
@@ -118,17 +123,10 @@ window.onload = wrap_img;
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Problem">
-<a class="anchor" href="#Problem" aria-hidden="true"><span class="octicon octicon-link"></span></a>Problem<a class="anchor-link" href="#Problem"> </a>
-</h1>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>In a R&amp;D environment, circuit boards are often experimented on and left on a work bench without a document indicating the changes.
-The next person to use the board has no way to know what changed.</p>
+<h3 id="I-was-bet-that-I-couldn't-write-a-program-to-count-all-the-points-left-on-the-table-during-a-dominoes-game.">
+<a class="anchor" href="#I-was-bet-that-I-couldn't-write-a-program-to-count-all-the-points-left-on-the-table-during-a-dominoes-game." aria-hidden="true"><span class="octicon octicon-link"></span></a>I was bet that I couldn't write a program to count all the points left on the table during a dominoes game.<a class="anchor-link" href="#I-was-bet-that-I-couldn't-write-a-program-to-count-all-the-points-left-on-the-table-during-a-dominoes-game."> </a>
+</h3>
+<p>It wasn't just a bet; it was a bet between brothers.  This just meant I wasn't going to lose.</p>
 
 </div>
 </div>
@@ -136,8 +134,8 @@ The next person to use the board has no way to know what changed.</p>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Solution">
-<a class="anchor" href="#Solution" aria-hidden="true"><span class="octicon octicon-link"></span></a>Solution<a class="anchor-link" href="#Solution"> </a>
+<h1 id="The-Problem">
+<a class="anchor" href="#The-Problem" aria-hidden="true"><span class="octicon octicon-link"></span></a>The Problem<a class="anchor-link" href="#The-Problem"> </a>
 </h1>
 </div>
 </div>
@@ -145,11 +143,7 @@ The next person to use the board has no way to know what changed.</p>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<ul>
-<li>Using <a href="">OpenCV</a> and a phone, take a picture of a known good board as reference.</li>
-<li>Take a picture of the board in an unknown state.</li>
-<li>Visually, analyze the differences of the immages</li>
-</ul>
+<p>At the end of each domino game, the loser has to count all the points left on the table. (Not impossible, but an annoyance when it gets into the hundreds)</p>
 
 </div>
 </div>
@@ -157,16 +151,8 @@ The next person to use the board has no way to know what changed.</p>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><img src="https://raw.githubusercontent.com/patrick-hanley/thought_experiments/master/images/opencv_pcb_defects/key_points_pcb.png" alt="key point analysis"></p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Analysis-description">
-<a class="anchor" href="#Analysis-description" aria-hidden="true"><span class="octicon octicon-link"></span></a>Analysis description<a class="anchor-link" href="#Analysis-description"> </a>
+<h1 id="The-Bet">
+<a class="anchor" href="#The-Bet" aria-hidden="true"><span class="octicon octicon-link"></span></a>The Bet<a class="anchor-link" href="#The-Bet"> </a>
 </h1>
 </div>
 </div>
@@ -174,18 +160,42 @@ The next person to use the board has no way to know what changed.</p>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<ul>
-<li>Transform the image into known size and shape (remove warping)</li>
-<li>Detect key landmarks in the image</li>
-<li>
-<p>Transform the second image to match the original, keying off of the landmarks</p>
+<p>I bet you couldn't create an app to take a picture and just tell you all the points.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="https://raw.githubusercontent.com/patrick-hanley/thought_experiments/master/images/domino_vids/screen_shot_domino.png" alt="sample image"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="The-Solution">
+<a class="anchor" href="#The-Solution" aria-hidden="true"><span class="octicon octicon-link"></span></a>The Solution<a class="anchor-link" href="#The-Solution"> </a>
+</h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Use-openCV-for-video-processing">
+<a class="anchor" href="#Use-openCV-for-video-processing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Use <a href="https://opencv.org/">openCV</a> for video processing<a class="anchor-link" href="#Use-openCV-for-video-processing"> </a>
+</h2>
+<ol>
+<li>Identify white rectangles with a specific ratio and area.</li>
+<li>Mask out each rectangle as a region of interest (ROI)</li>
+<li>Only process and analyze pixels within the ROI to improve frame rate</li>
+<li>Blur the image within the ROI</li>
+<li>Count the number of circles detected with <a href="https://docs.opencv.org/master/da/d53/tutorial_py_houghcircles.html">HoughCircles</a>
 </li>
-<li>
-<p>Overlay suspect image over known good image</p>
-</li>
-<li>Subtract suspect image from known good image and save as delta mask</li>
-<li>Overlay delta mask on suspect board</li>
-</ul>
+</ol>
 
 </div>
 </div>
@@ -193,24 +203,8 @@ The next person to use the board has no way to know what changed.</p>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>The example below transposes the 2 images on top of each other in almost perfect alignment.  You will notice some components that are changing color and other components being added.  This is the delta.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p><img src="https://github.com/patrick-hanley/thought_experiments/blob/master/images/opencv_pcb_defects/Feb-14-2021%2013-25-50_delta.gif?raw=true" alt=""></p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Final-outcome">
-<a class="anchor" href="#Final-outcome" aria-hidden="true"><span class="octicon octicon-link"></span></a>Final outcome<a class="anchor-link" href="#Final-outcome"> </a>
+<h1 id="I-won.">
+<a class="anchor" href="#I-won." aria-hidden="true"><span class="octicon octicon-link"></span></a>I won.<a class="anchor-link" href="#I-won."> </a>
 </h1>
 </div>
 </div>
@@ -218,8 +212,7 @@ The next person to use the board has no way to know what changed.</p>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<!-- #hide
-Watch a [video](https://www.youtube.com/watch?v=TMtsNrRLYMc) of the process in action. -->
+<!-- > Check out the [Video](https://www.youtube.com/watch?v=KhnSKfUGqL0)to see the process in action. -->
 </div>
 </div>
 </div>
@@ -235,7 +228,7 @@ Watch a [video](https://www.youtube.com/watch?v=TMtsNrRLYMc) of the process in a
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 
-        <iframe width="560" height="300" src="https://www.youtube.com/embed/TMtsNrRLYMc?rel=0" frameborder="0" allowfullscreen=""></iframe>
+        <iframe width="560" height="300" src="https://www.youtube.com/embed/KhnSKfUGqL0?rel=0" frameborder="0" allowfullscreen=""></iframe>
         
 </div>
 
@@ -259,7 +252,7 @@ Watch a [video](https://www.youtube.com/watch?v=TMtsNrRLYMc) of the process in a
         theme="github-light"
         crossorigin="anonymous"
         async>
-</script><a class="u-url" href="/thought_experiments/opencv/computer%20vision/augmentation/2021/02/20/_02_14_computer_vision_analyze_defects.html" hidden></a>
+</script><a class="u-url" href="/thought_experiments/computer%20vision/opencv/augmentation/2021/02/21/_02_02_computer_vision_counting.html" hidden></a>
 </article>
       </div>
     </main><footer class="site-footer h-card">
