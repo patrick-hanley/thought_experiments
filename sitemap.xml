@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
+<loc>https://patrick-hanley.github.io/thought_experiments/data/eda/pandas/pyviz/transform/2021/02/22/_02_01_eda.html</loc>
+<lastmod>2021-02-22T00:00:00-06:00</lastmod>
+</url>
+<url>
 <loc>https://patrick-hanley.github.io/thought_experiments/computer%20vision/opencv/augmentation/2021/02/22/_02_02_computer_vision_counting.html</loc>
 <lastmod>2021-02-22T00:00:00-06:00</lastmod>
 </url>
@@ -34,6 +38,6 @@
 </url>
 <url>
 <loc>https://patrick-hanley.github.io/thought_experiments/images/sweet_report.html</loc>
-<lastmod>2021-02-22T22:49:26-06:00</lastmod>
+<lastmod>2021-02-22T22:55:11-06:00</lastmod>
 </url>
 </urlset>
